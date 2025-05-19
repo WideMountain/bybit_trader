@@ -36,7 +36,7 @@ pip install -r requirements.txt
 - Fill in your Bybit API credentials and settings:
 
 ```
-env.example
+`env.example`
 BYBIT_API_KEY=your_api_key
 BYBIT_API_SECRET=your_api_secret
 BYBIT_TESTNET=True  # Set to False for live trading
