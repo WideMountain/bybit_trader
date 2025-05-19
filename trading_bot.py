@@ -620,3 +620,5 @@ class TradingBot:
             status['current_price'] = ticker['last']
         
         return status
+    
+#hejhej
