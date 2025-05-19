@@ -32,11 +32,11 @@ pip install -r requirements.txt
 
 ### 3. Configure your environment
 
-- Copy `.env.example` into a `.env` file of the 'bybit-trader' folder.
+- Copy `example.env` into a `.env` file of the 'bybit-trader' folder.
 - Fill in your Bybit API credentials and settings:
 
 ```
-`env.example`
+#example.env
 BYBIT_API_KEY=your_api_key
 BYBIT_API_SECRET=your_api_secret
 BYBIT_TESTNET=True  # Set to False for live trading
