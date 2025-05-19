@@ -1,0 +1,118 @@
+# Environment variables and secrets
+.env
+*.env
+secrets.json
+credentials.json
+
+# Python virtual environments
+venv/
+env/
+ENV/
+.venv/
+.ENV/
+.virtualenv/
+virtualenv/
+pyenv/
+venv.bak/
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Distribution / packaging
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Logs and databases
+*.log
+logs/
+*.db
+*.sqlite
+*.sqlite3
+data/historical/
+*.csv
+*.pickle
+*.feather
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IDE specific files
+# PyCharm
+.idea/
+*.iml
+.idea_modules/
+
+# VSCode
+.vscode/
+*.code-workspace
+.history/
+
+# Operating System Files
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# Project specific
+# Backtest results
+backtest_results/
+plots/
+reports/
+
+# Temporary files
+temp/
+tmp/
+.temp/
+.tmp/
+
+# Config file backups
+config_backup/
+*_backup.*
+*.bak
+
+# Caches
+.cache/
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+.coverage
+htmlcov/
