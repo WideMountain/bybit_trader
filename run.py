@@ -9,6 +9,14 @@ from typing import Dict, List, Optional, Tuple
 import threading
 import pandas as pd
 import matplotlib.pyplot as plt
+from strategies.ma_crossover import MACrossoverStrategy
+from strategies.rsi_strategy import RSIStrategy
+
+STRATEGY_MAP = {
+    "MA Crossover": MACrossoverStrategy,
+    "RSI": RSIStrategy,
+}
+
 from tabulate import tabulate
 import colorama
 from colorama import Fore, Style
@@ -60,7 +68,20 @@ class TradingBotApp:
             logger.error("API key and secret not found. Please set them in .env file.")
             print(f"{Fore.RED}ERROR: API key and secret not found. Please set them in .env file.{Style.RESET_ALL}")
             sys.exit(1)
-    
+        
+         # === ADD STRATEGY SELECTION PROMPT HERE ===
+        print("\nAvailable strategies:")
+        for idx, name in enumerate(STRATEGY_MAP.keys(), 1):
+            print(f"{idx}. {name}")
+        try:
+            strategy_idx = int(input("Select strategy [1]: ") or "1") - 1
+            self.strategy_name = list(STRATEGY_MAP.keys())[strategy_idx]
+        except (ValueError, IndexError):
+            print(f"{Fore.YELLOW}Invalid selection, defaulting to MA Crossover.{Style.RESET_ALL}")
+            self.strategy_name = "MA Crossover"
+        self.strategy_class = STRATEGY_MAP[self.strategy_name]
+        # === END STRATEGY SELECTION PROMPT === 
+
     def print_header(self):
         """Print application header"""
         print("\n" + "=" * 80)
@@ -250,7 +271,8 @@ class TradingBotApp:
                 api_secret=self.api_secret,
                 testnet=self.testnet,
                 risk_per_trade=self.risk_per_trade,
-                leverage=self.leverage
+                leverage=self.leverage,
+                strategy_class=self.strategy_class  # <-- Add this line
             )
         
         # Start trading
@@ -406,7 +428,8 @@ class TradingBotApp:
             initial_balance=initial_balance,
             api_key=self.api_key,
             api_secret=self.api_secret,
-            testnet=self.testnet
+            testnet=self.testnet,
+            strategy_class=self.strategy_class  # <-- Add this line if supported
         )
         
         # Run backtest

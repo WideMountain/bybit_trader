@@ -105,43 +105,17 @@ class TradingBot:
     
     def generate_signal(self, data: Optional[pd.DataFrame] = None) -> int:
         """
-        Generate trading signal
-        
-        Parameters:
-        data (pd.DataFrame): Price data with indicators
-        
-        Returns:
-        int: Signal (1: buy, -1: sell, 0: hold)
+        Generate trading signal using the selected strategy.
         """
-        # Use provided data or the latest fetched data
         df = data if data is not None else self.data
-        
+
         if df.empty:
             logger.warning("No data available to generate signal")
             return 0
-        
-        # Get the latest row for signal
-        latest = df.iloc[-1]
-        
-        # Get current position if any
+
         current_position = self.get_current_position()
-        
-        # Default signal is hold
-        signal = 0
-        
-        # Moving Average Crossover strategy
-        if latest['sma_short'] > latest['sma_long']:
-            # Bullish signal
-            if current_position is None or current_position['side'] == 'short':
-                signal = 1  # Buy/Long signal
-        elif latest['sma_short'] < latest['sma_long']:
-            # Bearish signal
-            if current_position is None or current_position['side'] == 'long':
-                signal = -1  # Sell/Short signal
-        
-        # Update last signal
+        signal = self.strategy.generate_signal(df, current_position)
         self.last_signal = signal
-        
         return signal
     
     def calculate_position_size(self, entry_price: float, stop_loss: float) -> float:
@@ -620,4 +594,4 @@ class TradingBot:
             status['current_price'] = ticker['last']
         
         return status
-    
+

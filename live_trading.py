@@ -19,7 +19,8 @@ class LiveTrader:
     
     def __init__(self, symbols: Optional[List[str]] = None, timeframe: str = '1h',
                api_key: Optional[str] = None, api_secret: Optional[str] = None,
-               testnet: Optional[bool] = None, check_interval: int = 60):
+               testnet: Optional[bool] = None, check_interval: int = 60,
+               strategy_class: Optional[type] = None):  
         """
         Initialize LiveTrader
         
@@ -37,6 +38,7 @@ class LiveTrader:
         self.api_secret = api_secret or config.BYBIT_API_SECRET
         self.testnet = testnet if testnet is not None else config.BYBIT_TESTNET
         self.check_interval = check_interval or config.CHECK_INTERVAL
+        self.strategy_class = strategy_class
         
         # Initialize trading bots
         self.bots = {}
@@ -46,7 +48,8 @@ class LiveTrader:
                 timeframe=self.timeframe,
                 api_key=self.api_key,
                 api_secret=self.api_secret,
-                testnet=self.testnet
+                testnet=self.testnet,
+                strategy_class=self.strategy_class  
             )
         
         # Internal state
@@ -188,4 +191,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    
