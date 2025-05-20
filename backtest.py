@@ -21,7 +21,8 @@ class Backtester:
                risk_per_trade: float = 1.0, leverage: int = 1,
                initial_balance: float = 10000.0, db_url: Optional[str] = None,
                api_key: Optional[str] = None, api_secret: Optional[str] = None, 
-               testnet: bool = True):
+               testnet: bool = True,
+               strategy_class: Optional[type] = None):
         """
         Initialize Backtester
         
@@ -40,6 +41,7 @@ class Backtester:
     Note:
         Slippage of 0.02% is applied to both entry and exit prices in backtests.
         """
+        
         self.symbol = symbol
         self.timeframe = timeframe
         self.strategy_params = strategy_params or config.STRATEGY_PARAMS.get(
@@ -62,6 +64,8 @@ class Backtester:
         self.equity_curve = pd.DataFrame()
         self.balance = initial_balance
         self.slippage = 0.0002  # 0.02% slippage applied to entry and exit prices
+        
+        self.strategy_class = strategy_class  # <-- Add this
         
         logger.info(f"Backtester initialized for {symbol} on {timeframe} timeframe")
     
@@ -127,6 +131,19 @@ class Backtester:
             return {
                 'success': False,
                 'error': "No data available"
+            }
+
+        # --- Generate signals using the selected strategy ---
+        if self.strategy_class is not None:
+            strategy = self.strategy_class(self.strategy_params)
+            def signal_func(idx, df):
+                return strategy.generate_signal(df.iloc[:idx+1], None)
+            self.data['signal'] = [signal_func(i, self.data) for i in range(len(self.data))]
+        elif 'signal' not in self.data.columns:
+            logger.error("No 'signal' column in data and no strategy_class provided.")
+            return {
+                'success': False,
+                'error': "No 'signal' column in data and no strategy_class provided."
             }
 
         # --- Prevent lookahead bias: shift signal by 1 ---
