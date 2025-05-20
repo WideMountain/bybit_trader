@@ -216,6 +216,7 @@ class DataLoader:
         Returns:
         pd.DataFrame: Data with indicators
         """
+        
         if df.empty:
             return df
         
@@ -233,6 +234,14 @@ class DataLoader:
         df['signal'] = 0
         df.loc[df['sma_short'] > df['sma_long'], 'signal'] = 1  # Buy signal
         df.loc[df['sma_short'] < df['sma_long'], 'signal'] = -1  # Sell signal
+        
+        # Calculate RSI
+        if 'rsi' not in df.columns:
+            delta = df['close'].diff()
+            gain = (delta.where(delta > 0, 0)).rolling(window=14).mean()
+            loss = (-delta.where(delta < 0, 0)).rolling(window=14).mean()
+            rs = gain / loss
+            df['rsi'] = 100 - (100 / (1 + rs))
         
         # Remove NaN values
         df.dropna(inplace=True)
