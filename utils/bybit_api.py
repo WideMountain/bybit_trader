@@ -134,38 +134,26 @@ class BybitAPI:
         List[Dict]: List of candlestick data
         """
         self._check_rate_limits()
-
+        
         # Map interval to CCXT format if needed
         interval_map = {
             '1m': '1m',
             '5m': '5m',
             '1h': '1h',
-            '4h': '4h',
             '1D': '1d',
         }
         ccxt_interval = interval_map.get(interval, interval)
-
-        # Format symbol for Bybit USDT perpetual (futures)
-        if self.exchange.options.get('defaultType') == 'future':
-            if not symbol.endswith('/USDT:USDT'):
-                # Convert BTCUSDT -> BTC/USDT:USDT, etc.
-                if symbol.endswith('USDT'):
-                    base = symbol[:-4]
-                    symbol = f"{base}/USDT:USDT"
-        else:
-            if not symbol.endswith('/USDT'):
-                if symbol.endswith('USDT'):
-                    base = symbol[:-4]
-                    symbol = f"{base}/USDT"
-
+        
+       # Get candles
         params = {}
         if start_time:
             params['since'] = start_time
-        # 'until' is not supported by CCXT for Bybit, so omit it
+        if end_time:
+            params['until'] = end_time
 
-        params['recvWindow'] = 20000
+        params['recvWindow'] = 20000  # 20 seconds, increase if needed
         params['recv_window'] = 20000
-
+            
         try:
             candles = self.exchange.fetch_ohlcv(
                 symbol=symbol,
@@ -174,7 +162,8 @@ class BybitAPI:
                 params=params
             )
             self._update_request_count()
-
+            
+            # Convert to consistent format
             formatted_candles = []
             for candle in candles:
                 formatted_candles.append({
@@ -185,7 +174,7 @@ class BybitAPI:
                     'close': candle[4],
                     'volume': candle[5]
                 })
-
+            
             return formatted_candles
         except Exception as e:
             logger.error(f"Error fetching klines for {symbol}: {e}")
