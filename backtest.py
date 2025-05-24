@@ -200,12 +200,8 @@ class Backtester:
                     unrealized_pnl = (current_price - current_position['entry_price']) * current_position['amount']
                 else:
                     unrealized_pnl = (current_position['entry_price'] - current_price) * current_position['amount']
+                
                 current_position['unrealized_pnl'] = unrealized_pnl
-
-            # --- Liquidation check: stop if balance is zero or less ---
-            if self.balance <= 0:
-                logger.warning("Account liquidated! Stopping backtest.")
-                break
         
         # Close any remaining position at the end of the backtest
         if current_position:
@@ -245,16 +241,16 @@ class Backtester:
         if risk_per_contract < min_risk:
             risk_per_contract = min_risk
 
-        risk_amount = self.initial_balance * (self.risk_per_trade / 100)
+        risk_amount = self.balance * (self.risk_per_trade / 100)
         position_size = risk_amount / risk_per_contract
 
         # Cap position size so notional value does not exceed balance * leverage
-        max_notional = self.initial_balance * self.leverage
+        max_notional = self.balance * self.leverage
         max_position_size = max_notional / entry_price
         position_size = min(position_size, max_position_size)
 
-        # Remove hard cap (let max_position_size logic handle it for all assets)
-        # position_size = min(position_size, 1.0)
+        # Optional: hard cap (e.g., never more than 1 BTC)
+        position_size = min(position_size, 1.0)
 
         position_size = round(abs(position_size), 6)  # Always positive
 
@@ -363,8 +359,6 @@ class Backtester:
             price = price * (1 + self.slippage)
         elif signal == -1:  # Short entry
             price = price * (1 - self.slippage)
-        entry_fee = price * position_size * 0.0006  # 0.06% fee
-        self.balance -= entry_fee  # Deduct entry fee from balance
         
         # Create position
         position = {
@@ -393,7 +387,7 @@ class Backtester:
             'stop_loss': stop_loss,
             'take_profit': take_profit,
             'is_backtest': True,
-            'strategy': self.strategy_class.__name__ if self.strategy_class else "Unknown"
+            'strategy': 'MA_Crossover'
         }
         
         # Save to database and local lists
@@ -424,9 +418,9 @@ class Backtester:
         else:
             price = price * (1 + self.slippage)  # Buy to cover, so worse price
             realized_pnl = (position['entry_price'] - price) * position['amount']
-        exit_fee = price * position['amount'] * 0.0006  # 0.06% fee
-        self.balance += realized_pnl - exit_fee  # Add PnL, subtract exit fee
         
+        # Update balance
+        self.balance += realized_pnl
         
         # Determine trade side (opposite of position)
         side = 'sell' if position['side'] == 'long' else 'buy'
@@ -442,7 +436,7 @@ class Backtester:
             'fee': price * position['amount'] * 0.0006,  # Assume 0.06% fee
             'realized_pnl': realized_pnl,
             'is_backtest': True,
-            'strategy': self.strategy_class.__name__ if self.strategy_class else "Unknown"
+            'strategy': 'MA_Crossover'
         }
         
         # Update position
