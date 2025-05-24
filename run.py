@@ -766,6 +766,7 @@ def main():
     app = TradingBotApp()
     app.run()
     # Haj här testar vi
+    # här testar vi igen
 
 if __name__ == "__main__":
     main()
